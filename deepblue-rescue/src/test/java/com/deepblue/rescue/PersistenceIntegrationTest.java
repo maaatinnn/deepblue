@@ -1,0 +1,70 @@
+package com.deepblue.rescue;
+
+import com.deepblue.rescue.repository.AnimalRepository;
+import com.deepblue.rescue.repository.ExpertiseRepository;
+import com.deepblue.rescue.repository.RescueCaseRepository;
+import com.deepblue.rescue.repository.RescueCenterRepository;
+import com.deepblue.rescue.repository.SpecialistRepository;
+import com.deepblue.rescue.repository.TreatmentRepository;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+// Paso 45 - Container real de PostgreSQL levantado por Testcontainers.
+@Testcontainers
+@SpringBootTest
+@Transactional
+class PersistenceIntegrationTest {
+
+    @Container
+    @ServiceConnection
+    static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:18-alpine")
+                    .withDatabaseName("deepblue_test")
+                    .withUsername("deepblue")
+                    .withPassword("deepblue");
+
+    // Paso 46 - Repositories e infraestructura inyectados.
+    @Autowired
+    private RescueCenterRepository rescueCenterRepository;
+
+    @Autowired
+    private RescueCaseRepository rescueCaseRepository;
+
+    @Autowired
+    private AnimalRepository animalRepository;
+
+    @Autowired
+    private SpecialistRepository specialistRepository;
+
+    @Autowired
+    private ExpertiseRepository expertiseRepository;
+
+    @Autowired
+    private TreatmentRepository treatmentRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    // Paso 47 - Test de Flyway: el esquema fue creado por Flyway, no por Hibernate.
+    @Test
+    void flywayShouldHaveExecutedV1AndV2() {
+        List<String> appliedVersions = jdbcTemplate.queryForList(
+                "select version from flyway_schema_history where success = true",
+                String.class
+        );
+
+        assertThat(appliedVersions).contains("1", "2");
+    }
+}
