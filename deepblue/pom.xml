@@ -15,7 +15,7 @@
     <artifactId>deepblue-rescue</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>deepblue-rescue</name>
-    <description>DeepBlue Rescue - capas de persistencia y servicio</description>
+    <description>DeepBlue Rescue - capas de persistencia, servicio y controlador REST</description>
 
     <properties>
         <java.version>21</java.version>
@@ -26,6 +26,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
         <dependency>
@@ -54,6 +64,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
 

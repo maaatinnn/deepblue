@@ -135,3 +135,29 @@ mvn clean test -Dtest='*ServiceImplTest'
 
 
 `mvn clean test` (sin filtro) también ejecuta `PersistenceIntegrationTest`, que sí requiere Docker por Testcontainers.
+
+
+## 14. Capa de controlador REST
+
+HTTP -> Controller -> (Bean Validation) -> Service -> Repository -> PostgreSQL. Los errores los traduce `GlobalExceptionHandler` a `ResponseEntity<ErrorResponse>`.
+
+| Método | Endpoint | Service | Éxito |
+|---|---|---|---|
+| GET | `/api/rescue-cases/{caseCode}` | `RescueCaseService.findByCode` | 200 |
+| GET | `/api/rescue-cases?status=` | `RescueCaseService.findByStatus` | 200 |
+| PATCH | `/api/rescue-cases/{caseCode}/status` | `RescueCaseService.changeStatus` | 200 |
+| GET | `/api/animals/{animalCode}` | `AnimalService.findByCode` | 200 |
+| GET | `/api/animals/in-rehabilitation` | `AnimalService.findAnimalsInRehabilitation` | 200 |
+| GET | `/api/animals/{animalCode}/treatments` | `TreatmentService.findByAnimalCode` | 200 |
+| GET | `/api/animals/{animalCode}/treatment-eligibility` | `AnimalService.canReceiveTreatment` | 200 |
+| POST | `/api/treatments` | `TreatmentService.register` | 201 |
+
+Errores (todos con `timestamp`, `status`, `error`, `message`, `details`): 400 validación / JSON inválido / parámetro inválido o faltante, 404 recurso inexistente, 405 método no soportado, 409 regla de negocio, 500 error inesperado (sin detalles internos).
+
+### Tests de controller
+
+`RescueCaseControllerTest`, `TreatmentControllerTest` y `AnimalControllerTest` (33 tests) usan `@WebMvcTest` + `@MockitoBean` + `MockMvc`. No requieren PostgreSQL ni Docker:
+
+    mvn clean test -Dtest='*ControllerTest'
+
+Spring Boot 4 exige el starter `spring-boot-starter-webmvc-test` (ya agregado al `pom.xml`). El análisis completo y la matriz de trazabilidad están en `ANALISIS_CAPA_CONTROLADOR.md`.
